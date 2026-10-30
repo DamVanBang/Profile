@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Đàm Văn Bằng — Kiến trúc sư Hệ sinh thái SUNBII</title>
+  <meta name="description" content="Portfolio trình diễn của Đàm Văn Bằng (2006) — nhà sáng lập SUNBII Technology. Trải nghiệm WebGL scrollytelling: hạt GPU biến hình, camera điện ảnh, typography động." />
+  <meta name="author" content="Đàm Văn Bằng" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://damvanbang.sunbii.vn/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://damvanbang.sunbii.vn/" />
+  <meta property="og:title" content="Đàm Văn Bằng — Kiến trúc sư Hệ sinh thái SUNBII" />
+  <meta property="og:description" content="Một hành trình cuộn trang điện ảnh xuyên qua hệ sinh thái SUNBII." />
+  <meta property="og:image" content="https://sunbii.vn/images/thumbail.png" />
+  <meta name="theme-color" content="#05060a" />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305060a'/%3E%3Ctext x='32' y='42' font-size='28' font-family='Arial' font-weight='900' fill='%23FBC02D' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,600;0,800;0,900;1,400&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== PRELOADER ===== -->
+  <div id="preloader" aria-hidden="true">
+    <div class="pre-inner">
+      <p class="pre-brand">SUNBII&nbsp;//&nbsp;DVB</p>
+      <p class="pre-num"><span id="preCount">00</span></p>
+      <div class="pre-bar"><span id="preBarFill"></span></div>
+      <p class="pre-note">Đang biên dịch shader &amp; khởi tạo vũ trụ hạt…</p>
+    </div>
+  </div>
+
+  <!-- ===== INTRO ĐIỆN ẢNH ===== -->
+  <div id="intro" aria-hidden="true">
+    <div class="intro-center">
+      <div class="intro-line-wrap"><span class="intro-line"></span></div>
+      <div class="intro-mask"><p class="intro-word">SUNBII&nbsp;//&nbsp;DVB</p></div>
+      <p class="intro-sub">TRÌNH DIỄN HỆ SINH THÁI · 20.000 HẠT ÁNH SÁNG</p>
+    </div>
+  </div>
+
+  <!-- ===== MENU FULLSCREEN ===== -->
+  <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
+    <button class="menu-close" aria-label="Đóng menu"><span></span><span></span></button>
+    <nav class="menu-nav" aria-label="Menu chính">
+      <a class="menu-item" href="#ch-hero" data-ch="0"><i>00</i><span>KHỞI ĐẦU</span></a>
+      <a class="menu-item" href="#ch-about" data-ch="1"><i>01</i><span>GIỚI THIỆU</span></a>
+      <a class="menu-item" href="#ch-ecosystem" data-ch="2"><i>02</i><span>HỆ SINH THÁI</span></a>
+      <a class="menu-item" href="#ch-skills" data-ch="3"><i>03</i><span>KỸ NĂNG</span></a>
+      <a class="menu-item" href="#ch-pride" data-ch="4"><i>04</i><span>TỰ HÀO</span></a>
+      <a class="menu-item" href="#ch-contact" data-ch="5"><i>05</i><span>KẾT NỐI</span></a>
+    </nav>
+    <p class="menu-foot">DVB. — KIẾN TẠO BỞI TRÍ TUỆ VIỆT · <a href="https://sunbii.vn/" target="_blank" rel="noopener">SUNBII.VN ↗</a></p>
+  </div>
+
+  <!-- ===== WEBGL CANVAS (lớp không gian 3D cố định) ===== -->
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="gl-grain" aria-hidden="true"></div>
+
+  <!-- ===== CON TRỎ TÙY BIẾN (desktop) ===== -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <a class="brand" href="#ch-hero" data-ch="0">DVB<span>.</span></a>
+    <nav class="topnav" aria-label="Điều hướng chương">
+      <a href="#ch-about" data-ch="1">Giới thiệu</a>
+      <a href="#ch-ecosystem" data-ch="2">Hệ sinh thái</a>
+      <a href="#ch-skills" data-ch="3">Kỹ năng</a>
+      <a href="#ch-pride" data-ch="4">Tự hào</a>
+      <a class="nav-cta" href="#ch-contact" data-ch="5">Liên hệ</a>
+    </nav>
+    <button class="topnav-toggle" aria-label="Mở menu" aria-controls="menuOverlay" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ===== RAIL TIẾN ĐỘ ===== -->
+  <aside class="rail" aria-hidden="true">
+    <div class="rail-track"><span id="railFill"></span></div>
+    <div class="rail-steps">
+      <span class="rail-step is-active" data-ch="0"><i>00</i><em>Khởi đầu</em></span>
+      <span class="rail-step" data-ch="1"><i>01</i><em>Giới thiệu</em></span>
+      <span class="rail-step" data-ch="2"><i>02</i><em>Hệ sinh thái</em></span>
+      <span class="rail-step" data-ch="3"><i>03</i><em>Kỹ năng</em></span>
+      <span class="rail-step" data-ch="4"><i>04</i><em>Tự hào</em></span>
+      <span class="rail-step" data-ch="5"><i>05</i><em>Kết nối</em></span>
+    </div>
+    <p class="rail-hud"><span id="hudChapter">CH.00</span><span id="hudFps">60 FPS</span></p>
+  </aside>
+
+  <!-- ===== NỘI DUNG DOM (lớp 2D đè trên canvas) ===== -->
+  <main id="content">
+
+    <!-- CH 00 — HERO -->
+    <section class="chapter" id="ch-hero" data-chapter="0">
+      <div class="sticky">
+        <div class="hero-copy">
+          <p class="eyebrow reveal-line">PORTFOLIO · TRÌNH DIỄN HIỆU ỨNG · 2026</p>
+          <h1 class="hero-title">
+            <span class="line-mask"><span class="line">ĐÀM VĂN</span></span>
+            <span class="line-mask"><span class="line accent">BẰNG</span></span>
+          </h1>
+          <p class="hero-sub reveal-line">Kiến trúc sư hệ sinh thái <strong>SUNBII</strong> — nơi 20.000 hạt ánh sáng
+            kể lại hành trình của một bộ óc Việt sinh năm 2006.</p>
+          <div class="hero-hint" aria-hidden="true">
+            <span class="hint-label">CUỘN ĐỂ BAY</span>
+            <span class="hint-arrow"></span>
+          </div>
+        </div>
+        <p class="hero-meta reveal-line" aria-hidden="true">WEBGL · LIQUID FIELD · GPU MORPH · SHOCKWAVE</p>
+      </div>
+    </section>
+
+    <!-- KINETIC STRIP 1 -->
+    <div class="kstrip" aria-hidden="true">
+      <div class="kstrip-track" data-dir="1">
+        <span>KIẾN TẠO BỞI TRÍ TUỆ VIỆT</span><i>✦</i><span>SUNBII TECHNOLOGY</span><i>✦</i>
+        <span>KIẾN TẠO BỞI TRÍ TUỆ VIỆT</span><i>✦</i><span>SUNBII TECHNOLOGY</span><i>✦</i>
+      </div>
+    </div>
+
+    <!-- CH 01 — GIỚI THIỆU -->
+    <section class="chapter" id="ch-about" data-chapter="1">
+      <div class="sticky">
+        <div class="chapter-copy right">
+          <p class="chapter-index">CH.01 — GIỚI THIỆU</p>
+          <h2 class="chapter-title">
+            <span class="line-mask"><span class="line">Một bộ óc</span></span>
+            <span class="line-mask"><span class="line">không ngừng <em>vũ trụ hoá</em></span></span>
+          </h2>
+          <p class="chapter-lead reveal-line">Sinh ngày 05/10/2006, từ năm 2021 tôi kiến tạo SUNBII — một hệ sinh thái
+            công nghệ của người Việt: từ pin xe điện, hệ API tự động, thiệp cưới online đến buồng lái số.</p>
+          <div class="fact-grid reveal-line">
+            <div class="fact"><b>05·10·2006</b><span>Nơi bắt đầu</span></div>
+            <div class="fact"><b>20·01·2021</b><span>SUNBII ra đời</span></div>
+            <div class="fact"><b>6+</b><span>Sản phẩm đang chạy</span></div>
+            <div class="fact"><b>1</b><span>Khát vọng: vươn tầm thế giới</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CH 02 — HỆ SINH THÁI -->
+    <section class="chapter" id="ch-ecosystem" data-chapter="2">
+      <div class="sticky">
+        <div class="chapter-copy">
+          <p class="chapter-index">CH.02 — HỆ SINH THÁI</p>
+          <h2 class="chapter-title">
+            <span class="line-mask"><span class="line">Mỗi hạt là</span></span>
+            <span class="line-mask"><span class="line accent">một sản phẩm đang chạy</span></span>
+          </h2>
+          <p class="chapter-lead reveal-line">Cụm knot xoắn dưới tay bạn chính là mạch kết nối của cả hệ sinh thái.</p>
+          <div class="eco-grid reveal-line">
+            <a class="eco-card" href="https://api.sunbii.vn/" target="_blank" rel="noopener">
+              <i>01</i><b>SUNBII API</b><span>Workspace 17 module — tự động hoá, bảo hành, kho, server.</span><u>api.sunbii.vn ↗</u>
+            </a>
+            <a class="eco-card" href="https://invites.sunbii.vn/" target="_blank" rel="noopener">
+              <i>02</i><b>SUNBII Invites</b><span>Thiệp cưới · sinh nhật · họp lớp online giàu cảm xúc.</span><u>invites.sunbii.vn ↗</u>
+            </a>
+            <a class="eco-card" href="https://services.sunbii.vn/" target="_blank" rel="noopener">
+              <i>03</i><b>SUNBII Services</b><span>Pin lithium · sửa BMS · cân cell · bảo hành minh bạch.</span><u>services.sunbii.vn ↗</u>
+            </a>
+            <a class="eco-card" href="https://ev.sunbii.vn/" target="_blank" rel="noopener">
+              <i>04</i><b>EV-S3 CyberCockpit</b><span>Buồng lái số ESP32-S3 · JK BMS · GPS · MapLibre 3D.</span><u>ev.sunbii.vn ↗</u>
+            </a>
+            <a class="eco-card" href="https://forum.sunbii.vn/" target="_blank" rel="noopener">
+              <i>05</i><b>SUNBII Forum</b><span>Cộng đồng — nơi tri thức SUNBII được chia sẻ.</span><u>forum.sunbii.vn ↗</u>
+            </a>
+            <a class="eco-card is-ghost" href="https://sunbii.vn/" target="_blank" rel="noopener">
+              <i>06</i><b>sunbii.vn</b><span>Cổng chính của hệ sinh thái — Kiến tạo bởi Trí tuệ Việt.</span><u>sunbii.vn ↗</u>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CH 03 — KỸ NĂNG -->
+    <section class="chapter" id="ch-skills" data-chapter="3">
+      <div class="sticky">
+        <div class="chapter-copy right">
+          <p class="chapter-index">CH.03 — KỸ NĂNG</p>
+          <h2 class="chapter-title">
+            <span class="line-mask"><span class="line">Chuỗi ADN</span></span>
+            <span class="line-mask"><span class="line accent">của một maker</span></span>
+          </h2>
+          <p class="chapter-lead reveal-line">Xoắn kép dưới này là bộ gen kỹ thuật: web, hệ thống, đồ hoạ và máy nhúng cùng tồn tại trong một cơ thể.</p>
+          <div class="skill-list reveal-line">
+            <div class="skill"><div class="skill-head"><b>Web Engineering</b><span>HTML · CSS · JS · Tailwind</span></div><div class="skill-bar"><span data-level="0.92"></span></div></div>
+            <div class="skill"><div class="skill-head"><b>Backend &amp; Automation</b><span>Node.js · API · Server Control</span></div><div class="skill-bar"><span data-level="0.85"></span></div></div>
+            <div class="skill"><div class="skill-head"><b>Creative WebGL</b><span>Three.js · GLSL · GSAP</span></div><div class="skill-bar"><span data-level="0.78"></span></div></div>
+            <div class="skill"><div class="skill-head"><b>UI/UX &amp; Design</b><span>Photoshop · Brand · Motion</span></div><div class="skill-bar"><span data-level="0.82"></span></div></div>
+            <div class="skill"><div class="skill-head"><b>Embedded Systems</b><span>ESP32 · BMS · GPS · IoT</span></div><div class="skill-bar"><span data-level="0.75"></span></div></div>
+            <div class="skill"><div class="skill-head"><b>Product Thinking</b><span>Sunbii Ecosystem · Ops</span></div><div class="skill-bar"><span data-level="0.88"></span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KINETIC STRIP 2 -->
+    <div class="kstrip" aria-hidden="true">
+      <div class="kstrip-track" data-dir="-1">
+        <span>SẢN PHẨM CHẠY THẬT</span><i>✦</i><span>CODE · PIN · PIXEL</span><i>✦</i>
+        <span>SẢN PHẨM CHẠY THẬT</span><i>✦</i><span>CODE · PIN · PIXEL</span><i>✦</i>
+      </div>
+    </div>
+
+    <!-- CH 04 — TỰ HÀO VIỆT -->
+    <section class="chapter" id="ch-pride" data-chapter="4">
+      <div class="sticky">
+        <div class="chapter-copy center">
+          <p class="chapter-index">CH.04 — NIỀM TỰ HÀO</p>
+          <h2 class="pride-title">
+            <span class="line-mask"><span class="line">TRÍ TUỆ</span></span>
+            <span class="line-mask"><span class="line accent">VIỆT</span></span>
+          </h2>
+          <p class="chapter-lead reveal-line">20.000 hạt vừa tụ thành ngôi sao vàng — cùng một cách chúng tôi ghép từng dòng code,
+            từng cell pin, từng pixel thành sản phẩm mang dấu Việt Nam vươn ra thế giới.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CH 05 — LIÊN HỆ -->
+    <section class="chapter" id="ch-contact" data-chapter="5">
+      <div class="sticky">
+        <div class="chapter-copy center">
+          <p class="chapter-index">CH.05 — KẾT NỐI</p>
+          <h2 class="chapter-title">
+            <span class="line-mask"><span class="line">Hạt cuối cùng</span></span>
+            <span class="line-mask"><span class="line accent">là lời mời kết nối</span></span>
+          </h2>
+          <p class="chapter-lead reveal-line">Hành tinh đang quay dưới này cần thêm những người đồng hành. Chạm vào một quỹ đạo bất kỳ.</p>
+          <div class="contact-grid reveal-line">
+            <a class="orbit magnetic" href="tel:0345696820"><b>Gọi điện</b><span>0345 696 820</span></a>
+            <a class="orbit magnetic" href="https://zalo.me/0342424932" target="_blank" rel="noopener"><b>Zalo</b><span>0342 424 932</span></a>
+            <a class="orbit magnetic" href="https://fb.com/damvanbang2006" target="_blank" rel="noopener"><b>Facebook</b><span>fb.com/damvanbang2006</span></a>
+            <a class="orbit magnetic" href="https://instagram.com/damvanbang2006" target="_blank" rel="noopener"><b>Instagram</b><span>@damvanbang2006</span></a>
+            <a class="orbit magnetic" href="https://threads.net/@damvanbang2006" target="_blank" rel="noopener"><b>Threads</b><span>@damvanbang2006</span></a>
+            <a class="orbit magnetic" href="mailto:damvanbang2006@gmail.com"><b>Email</b><span>damvanbang2006@gmail.com</span></a>
+          </div>
+        </div>
+        <footer class="site-foot">
+          <span>© <span id="year">2026</span> Đàm Văn Bằng · SUNBII Technology</span>
+          <span class="foot-links"><a href="https://sunbii.vn/" target="_blank" rel="noopener">sunbii.vn</a><a href="https://api.sunbii.vn/" target="_blank" rel="noopener">api</a><a href="https://invites.sunbii.vn/" target="_blank" rel="noopener">invites</a><a href="https://services.sunbii.vn/" target="_blank" rel="noopener">services</a><a href="https://ev.sunbii.vn/" target="_blank" rel="noopener">ev-s3</a></span>
+          <span class="foot-tech">THREE.JS r160 · GSAP · LENIS · 20.000 HẠT</span>
+        </footer>
+      </div>
+    </section>
+
+  </main>
+
+  <noscript>
+    <p style="position:fixed;inset:auto 1rem 1rem 1rem;z-index:99;background:#111;color:#fff;padding:1rem;border-radius:8px;">
+      Trang trình diễn này cần JavaScript để chạy hiệu ứng WebGL. Nội dung cơ bản: Đàm Văn Bằng — sáng lập SUNBII Technology (2006) — liên hệ 0345 696 820 · fb.com/damvanbang2006.
+    </p>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
